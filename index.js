@@ -4,8 +4,9 @@ var nums1to4 = '(1st|2nd|3rd|4th|first|second|third|fourth)'
 var numNames = { first: '1st', second: '2nd', third: '3rd', fourth: '4th' }
 
 var re = {}
+re.time = /(\d+:\d+|\d+(?::\d+)?\s*(?:pm|am))/
 re.every = RegExp(
-  '(?:(\\d+:\\d+|\\d+(?::\\d+)?\\s*(?:pm|am))\\s+)?'
+  '(?:' + re.time.source + '\\s+)?'
   + '(every|each)?\\s+(?:(other)\\s+|'
   + nums1to4
     + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
@@ -19,10 +20,12 @@ re.every = RegExp(
   'i'
 )
 
-function everyf (s) {
+function everyf (s, now) {
+  if (!now) now = new Date
   var m = re.every.exec(s)
   if (!m) return m
   var time = m[1] || m[8] || null
+  var ut = time && !re.time.test(m[10]) ? ' ' + time : ''
   return {
     every: Boolean(m[2] || /days$/i.test(m[7])),
     other: Boolean(m[3]),
@@ -33,8 +36,8 @@ function everyf (s) {
     ) : null,
     time: time,
     day: String(m[7]).toLowerCase(),
-    starting: m[9] ? parset(m[9]) : null,
-    until: m[10] ? parset(m[10] + (time ? ' ' + time : '')) : null,
+    starting: m[9] ? parset(m[9], { now: now }) : null,
+    until: m[10] ? parset(m[10] + ut, { now: now }) : null,
     index: m.index
   }
 }
@@ -68,7 +71,7 @@ module.exports = Mess
 function Mess (str, opts) {
   if (!(this instanceof Mess)) return new Mess(str, opts)
   if (!opts) opts = {}
-  this._every = everyf(str)
+  this._every = everyf(str, opts.created)
   this._created = opts.created
   this.title = this._every ? str.slice(0, this._every.index).trim() : null
   // for X weeks
@@ -77,7 +80,7 @@ function Mess (str, opts) {
 
 Mess.prototype.next = function (base) {
   if (!base) base = new Date
-  if (typeof base === 'string') base = parset(base)
+  if (typeof base === 'string') base = parset(base, { now: this._created })
   if (this._every && this._every.numbered) {
     //...
   } else if (this._every && this._every.other && this._every.every
