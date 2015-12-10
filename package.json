@@ -18,5 +18,8 @@
   "license": "BSD",
   "dependencies": {
     "parse-messy-time": "^1.2.1"
+  },
+  "devDependencies": {
+    "tape": "^4.2.2"
   }
 }
