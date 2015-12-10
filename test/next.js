@@ -20,7 +20,7 @@ test('one-off event', function (t) {
 test('thursdays', function (t) {
   var str = 'javascript study group thursdays at 7 pm'
   var ev = parse(str, { created: new Date('2015-12-10 03:00') })
-  var n = undefined, outputs = []
+  var n = '2015-12-10 03:00', outputs = []
   for (var i = 0; i < 3; i++) {
     n = ev.next(n)
     if (!n) break
@@ -38,7 +38,7 @@ test('every other starting until', function (t) {
   var str = 'oakland wiki 18:30 every other wednesday'
     + ' starting dec 2 until dec 23'
   var ev = parse(str, { created: new Date('2015-12-10 03:00') })
-  var n = undefined, outputs = []
+  var n = '2015-12-10 03:00', outputs = []
   for (var i = 0; i < 3; i++) {
     n = ev.next(n)
     if (!n) break
@@ -47,6 +47,23 @@ test('every other starting until', function (t) {
   t.deepEqual(outputs, [
     'Wed Dec 16 2015 18:30:00',
     'Wed Dec 23 2015 18:30:00'
+  ])
+  t.end()
+})
+
+test('every day', function (t) {
+  var str = 'every day at 7 pm'
+  var ev = parse(str, { created: new Date('2015-12-10 03:00') })
+  var n = '2015-12-10 03:00', outputs = []
+  for (var i = 0; i < 3; i++) {
+    n = ev.next(n)
+    if (!n) break
+    outputs.push(n.toString().replace(/ GMT.*/, ''))
+  }
+  t.deepEqual(outputs, [
+    'Thu Dec 10 2015 19:00:00',
+    'Thu Dec 11 2015 19:00:00',
+    'Thu Dec 12 2015 19:00:00'
   ])
   t.end()
 })
