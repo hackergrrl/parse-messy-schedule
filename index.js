@@ -6,11 +6,12 @@ var numNames = { first: '1st', second: '2nd', third: '3rd', fourth: '4th' }
 var re = {}
 re.every = RegExp(
   '(?:(\\d+:\\d+|\\d+(?::\\d+)?\\s*(?:pm|am))\\s+)?'
-  + '(?:every|each)\\s+(?:(other)\\s+|'
+  + '(every|each)?\\s+(?:(other)\\s+|'
   + nums1to4
     + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
     + '\\s+)?'
-  + '(?:(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b)'
+  + '(?:((?:mon|tues?|wed(?:nes)?|thurs?|fri|sat(?:ur)?|sun)(?:days?)?'
+    + '|tomorrow)\\b)'
   + '(?:\\s+(.+?))?'
   + '(?:\\s+(?:starting|from)\\s+(.+?))?'
   + '(?:\\s+(?:until|to)\\s+(.+?))?'
@@ -21,17 +22,19 @@ re.every = RegExp(
 function everyf (s) {
   var m = re.every.exec(s)
   if (!m) return m
+  var time = m[1] ? parset(m[1]) : m[8] ? parset(m[8]) : null
   return {
-    other: Boolean(m[2]),
-    numbered: m[3] ? normNum(
-      m[3] && m[4] === 'through' && m[5] ? thru(m[3], m[5]) :
-        m[5] ? [ m[3], m[5] ] :
-        [ m[3] ]
+    every: Boolean(m[2] || /days$/i.test(m[7])),
+    other: Boolean(m[3]),
+    numbered: m[4] ? normNum(
+      m[4] && m[5] === 'through' && m[6] ? thru(m[4], m[6]) :
+        m[6] ? [ m[4], m[6] ] :
+        [ m[4] ]
     ) : null,
-    day: String(m[6]).toLowerCase(),
-    time: m[1] ? parset(m[1]) : m[7] ? parset(m[7]) : null,
-    starting: m[8] ? parset(m[8]) : null,
-    until: m[9] ? parset(m[9] + (m[7] ? ' ' + m[7] : '')) : null,
+    time: time,
+    day: String(m[7]).toLowerCase(),
+    starting: m[9] ? parset(m[9]) : null,
+    until: m[10] ? parset(m[10] + (time ? ' ' + time : '')) : null,
     index: m.index
   }
 }
@@ -77,7 +80,7 @@ Mess.prototype.next = function (base) {
   if (typeof base === 'string') base = parset(base)
   if (this._every && this._every.numbered) {
     //...
-  } else if (this._every && this._every.other
+  } else if (this._every && this._every.other && this._every.every
   && (this._every.starting || this._created)) {
     var x = this._every.starting || this._created
     if (base <= x) base = x
@@ -87,12 +90,17 @@ Mess.prototype.next = function (base) {
     if (t <= base) t.setDate(t.getDate() + 14)
     if (this._every.until && t - 1000 > this._every.until) return null
     return t
-  } else if (this._every) {
+  } else if (this._every && this._every.every) {
     var tt = this._every.time ? ' at ' + this._every.time : ''
     var t = parset('this ' + this._every.day + tt, { now: base })
     if (t <= base) t.setDate(t.getDate() + 7)
     if (this._every.until && t - 1000 > this._every.until) return null
     return t
+  } else if (this._every && (this._created || this._every.starting)) {
+    var x = this._every.starting || this._created
+    var tt = this._every.time ? ' at ' + this._every.time : ''
+    var t = parset('this ' + this._every.day + tt, { now: x })
+    if (t <= base) return null
+    return t
   }
 }
-
