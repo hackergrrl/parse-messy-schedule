@@ -12,9 +12,9 @@ var ev = parse(str)
 console.log('#', ev.title)
 var n = undefined
 for (var i = 0; i < 3; i++) {
-	n = ev.next(n)
-	if (!n) break
-	console.log(n)
+  n = ev.next(n)
+  if (!n) break
+  console.log(n)
 }
 ```
 
@@ -41,4 +41,33 @@ Wed Dec 16 2015 18:30:00 GMT-0800 (PST)
 Wed Dec 23 2015 18:30:00 GMT-0800 (PST)
 ```
 
+# api
 
+``` js
+var parse = require('parse-messy-schedule')
+```
+
+## var m = parse(str, opts)
+
+Parse `str`, returning a parse object `m`.
+
+* `opts.created` - the time when `str` was created
+
+## m.title
+
+event title
+
+## m.next(base)
+
+Return the next time the event will be held starting from `base`, or now if
+`base` isn't given.
+
+# install
+
+```
+npm install parse-messy-schedule
+```
+
+# license
+
+BSD
