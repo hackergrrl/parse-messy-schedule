@@ -5,17 +5,18 @@ var numNames = { first: '1st', second: '2nd', third: '3rd', fourth: '4th' }
 
 var re = {}
 re.every = function (s) {
-  var re = RegExp('every\\s+(?:(other)\\s+|'
+  var r = RegExp('(?:every|each)\\s+(?:(other)\\s+|'
     + nums1to4
       + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
       + '\\s+)?'
     + '(?:(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b)'
     + '(?:\\s+(.+?))?'
-    + '(?:\\s+starting\\s+(.+))?'
+    + '(?:\\s+(?:starting|from)\\s+(.+?))?'
+    + '(?:\\s+(?:until|to)\\s+(.+?))?'
     + '\\s*$',
     'i'
   )
-  var m = re.exec(s)
+  var m = r.exec(s)
   if (!m) return m
   return {
     other: Boolean(m[1]),
@@ -26,7 +27,8 @@ re.every = function (s) {
     ) : null,
     day: String(m[5]).toLowerCase(),
     time: m[6] ? parset(m[6]) : null,
-    starting: m[7] ? parset(m[7]) : null
+    starting: m[7] ? parset(m[7]) : null,
+    until: m[8] ? parset(m[8] + (m[6] ? ' ' + m[6] : '')) : null
   }
 }
 
@@ -80,11 +82,13 @@ Mess.prototype.next = function (base) {
     var tt = this._every.time ? ' at ' + this._every.time : ''
     var t = parset(p + ' ' + this._every.day + tt, { now: base })
     if (t <= base) t.setDate(t.getDate() + 14)
+    if (this._every.until && t - 1 > this._every.until) return null
     return t
   } else if (this._every) {
     var tt = this._every.time ? ' at ' + this._every.time : ''
     var t = parset('this ' + this._every.day + tt, { now: base })
     if (t <= base) t.setDate(t.getDate() + 7)
+    if (this._every.until && t > this._every.until) return null
     return t
   }
 }

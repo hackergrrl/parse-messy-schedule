@@ -5,5 +5,6 @@ var ev = parse(str)
 var n = undefined
 for (var i = 0; i < 3; i++) {
 	n = ev.next(n)
+	if (!n) break
 	console.log(n)
 }
