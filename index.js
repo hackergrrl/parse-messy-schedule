@@ -10,7 +10,9 @@ re.every = function (s) {
       + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
       + '\\s+)?'
     + '(?:(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b)'
-    + '(?:\\s+starting\\s+(.+))?',
+    + '(?:\\s+(.+?))?'
+    + '(?:\\s+starting\\s+(.+))?'
+    + '\\s*$',
     'i'
   )
   var m = re.exec(s)
@@ -23,7 +25,8 @@ re.every = function (s) {
         [ m[2] ]
     ) : null,
     day: String(m[5]).toLowerCase(),
-    starting: m[6] ? parset(m[6]) : null
+    time: m[6] ? parset(m[6]) : null,
+    starting: m[7] ? parset(m[7]) : null
   }
 }
 
@@ -72,14 +75,16 @@ Mess.prototype.next = function (base) {
   } else if (this._every && this._every.other
   && (this._every.starting || this._created)) {
     var x = this._every.starting || this._created
-    if (base < x) base = x
+    if (base <= x) base = x
     var p = countWeeks(x, base) % 2 === 0 ? 'this' : 'next'
-    var t = parset(p + ' ' + this._every.day, { now: base })
-    if (t < base) t.setDate(t.getDate() + 14)
+    var tt = this._every.time ? ' at ' + this._every.time : ''
+    var t = parset(p + ' ' + this._every.day + tt, { now: base })
+    if (t <= base) t.setDate(t.getDate() + 14)
     return t
   } else if (this._every) {
-    var t = parset('this ' + this._every.day, { now: base })
-    if (t < base) t.setDate(t.getDate() + 7)
+    var tt = this._every.time ? ' at ' + this._every.time : ''
+    var t = parset('this ' + this._every.day + tt, { now: base })
+    if (t <= base) t.setDate(t.getDate() + 7)
     return t
   }
 }
