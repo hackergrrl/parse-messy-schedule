@@ -11,7 +11,7 @@ re.every = RegExp(
     + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
     + '\\s+)?'
   + '(?:((?:mon|tues?|wed(?:nes)?|thurs?|fri|sat(?:ur)?|sun)(?:days?)?'
-    + '|tomorrow)\\b)'
+    + '|tomorrow|day)\\b)'
   + '(?:\\s+(.+?))?'
   + '(?:\\s+(?:starting|from)\\s+(.+?))?'
   + '(?:\\s+(?:until|to)\\s+(.+?))?'
@@ -22,7 +22,7 @@ re.every = RegExp(
 function everyf (s) {
   var m = re.every.exec(s)
   if (!m) return m
-  var time = m[1] ? parset(m[1]) : m[8] ? parset(m[8]) : null
+  var time = m[1] || m[8] || null
   return {
     every: Boolean(m[2] || /days$/i.test(m[7])),
     other: Boolean(m[3]),
@@ -92,8 +92,12 @@ Mess.prototype.next = function (base) {
     return t
   } else if (this._every && this._every.every) {
     var tt = this._every.time ? ' at ' + this._every.time : ''
-    var t = parset('this ' + this._every.day + tt, { now: base })
-    if (t <= base) t.setDate(t.getDate() + 7)
+    var t = this._every.day === 'day'
+      ? parset(tt, { now: base })
+      : parset('this ' + this._every.day + tt, { now: base })
+    if (t <= base && this._every.day === 'day') {
+      t.setDate(t.getDate() + 1)
+    } else if (t <= base) t.setDate(t.getDate() + 7)
     if (this._every.until && t - 1000 > this._every.until) return null
     return t
   } else if (this._every && (this._created || this._every.starting)) {

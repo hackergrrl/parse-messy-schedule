@@ -62,8 +62,8 @@ test('every day', function (t) {
   }
   t.deepEqual(outputs, [
     'Thu Dec 10 2015 19:00:00',
-    'Thu Dec 11 2015 19:00:00',
-    'Thu Dec 12 2015 19:00:00'
+    'Fri Dec 11 2015 19:00:00',
+    'Sat Dec 12 2015 19:00:00'
   ])
   t.end()
 })
