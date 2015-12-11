@@ -6,7 +6,7 @@ var numNames = { first: '1st', second: '2nd', third: '3rd', fourth: '4th' }
 var re = {}
 re.time = /(\d+:\d+|\d+(?::\d+)?\s*(?:pm|am))/
 re.every = RegExp(
-  '(?:' + re.time.source + '\\s+)?'
+  '(?:"\\s+")?(?:' + re.time.source + '\\s+)?'
   + '(every|each)?\\s+(?:(other)\\s+|'
   + nums1to4
     + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
@@ -73,7 +73,7 @@ function Mess (str, opts) {
   if (!opts) opts = {}
   this._every = everyf(str, opts.created)
   this._created = opts.created
-  this.title = this._every ? str.slice(0, this._every.index).trim() : null
+  this.title = this._every ? str.slice(0, this._every.index).trim().replace(/"/g, '') : null
   // for X weeks
   // starting X for Y weeks
 }

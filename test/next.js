@@ -67,3 +67,15 @@ test('every day', function (t) {
   ])
   t.end()
 })
+
+test('using quotes to escape titles', function (t) {
+  var str = '"linux installfest friday" friday at 21:00'
+  var ev = parse(str, { created: new Date('2015-12-09 03:00') })
+  t.equal(ev.title, 'linux installfest friday')
+  t.equal(
+    ev.next('2015-12-09 03:00').toString().replace(/ GMT.*/, ''),
+    'Fri Dec 11 2015 21:00:00'
+  )
+  t.equal(ev.next('2015-12-12 10:00'), null)
+  t.end()
+})
