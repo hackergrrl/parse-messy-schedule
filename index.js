@@ -6,7 +6,7 @@ var numNames = { first: '1st', second: '2nd', third: '3rd', fourth: '4th' }
 var re = {}
 re.time = /(\d+:\d+|\d+(?::\d+)?\s*(?:pm|am))/
 re.every = RegExp(
-  '(?:".+")?(?:' + re.time.source + '\\s+)?'
+  '(?:' + re.time.source + '\\s+)?'
   + '(every|each)?\\s+(?:(other)\\s+|'
   + nums1to4
     + '(?:(?:\\s*,\\s*|\\s+(and|through)\\s+)' + nums1to4 + ')?'
